@@ -3,6 +3,13 @@ name = "chrobry-core"
 version = "1.0.0"
 authors = ["Patryk 'PsichiX' Budzynski <psichix@gmail.com>"]
 edition = "2018"
+description = "Chrobry core module"
+license = "MIT"
+homepage = "https://github.com/PsichiX/chrobry"
+repository = "https://github.com/PsichiX/chrobry"
+documentation = "https://docs.rs/chrobry-core"
+readme = "../README.md"
+maintenance = { status = "actively-developed" }
 
 [dependencies]
 pest = "2.1"
