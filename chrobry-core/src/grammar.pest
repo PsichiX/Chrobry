@@ -1,0 +1,53 @@
+program = { SOI ~ element* ~ EOI }
+element = _{ import_elm | inject_elm | extern_elm | struct_elm | enum_elm | impl_elm }
+identifier = ${ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
+variable = { "$" ~ identifier }
+import_elm = { "import" ~ string }
+inject_elm = { "inject" ~ code }
+extern_elm = { "extern" ~ extern_elm_types ~ "{" ~ extern_elm_impls ~ "}" }
+extern_elm_types = { string+ }
+extern_elm_impls = { extern_elm_impl* }
+extern_elm_impl = { "impl" ~ identifier ~ code }
+type_elm = { string | identifier }
+fields = { field* }
+field = { identifier ~ ":" ~ type_elm }
+struct_elm = { tags ~ "struct" ~ identifier ~ "{" ~ fields ~ "}" }
+tags = { tag* }
+tag = { "@" ~ identifier ~ tag_params? }
+tag_params = { "{" ~ tag_param* ~ "}" }
+tag_param = { identifier ~ ("=" ~ string)? }
+enum_elm = { tags ~ "enum" ~ identifier ~ "{" ~ enum_fields ~ "}" }
+enum_fields = { enum_field* }
+enum_field = { identifier }
+impl_elm = { "impl" ~ impl_target? ~ identifier ~ where_rules? ~ code }
+impl_target = { impl_target_struct | impl_target_enum }
+impl_target_struct = { "struct" }
+impl_target_enum = { "enum" }
+where_rules = { where_rule* }
+where_rule = { where_rule_exists | where_rule_is | where_rule_impl }
+where_rule_exists = { "where" ~ variable ~ "exists" }
+where_rule_is = { "where" ~ variable ~ "is" ~ string }
+where_rule_impl = { "where" ~ code_op_in ~ "impl" ~ where_rule_impls }
+where_rule_impls = { identifier* }
+string = ${ "'" ~ string_inner ~ "'" }
+string_inner = @{ string_char* }
+string_char = {
+    !("'" | "\\") ~ ANY
+    | "\\" ~ ("'" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
+    | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
+}
+code = { "```" ~ code_inner ~ "```" }
+code_inner = ${ (code_chars | code_op)* }
+code_chars = @{ (
+	!("```" | "%{" | "\\") ~ ANY
+    | "\\" ~ ("%" | "\\" | "/" | "n" | "r" | "t")
+)+ }
+code_op = !{ "%{" ~ (variable | code_op_for) ~ "}%" }
+code_op_in = { variable | code_op_in_fields }
+code_op_in_fields = { "fields" }
+code_op_for = { "for" ~ vars ~ "in" ~ code_op_in ~ where_rules? ~ code }
+vars = { variable+ }
+WHITESPACE = _{ " " | "\t" | NEWLINE }
+COMMENT = _{ COMMENT_MULTI | COMMENT_SINGLE }
+COMMENT_SINGLE = _{ "//" ~ (!NEWLINE ~ ANY)* ~ NEWLINE+ }
+COMMENT_MULTI = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }

@@ -1,0 +1,5 @@
+[workspace]
+members = [
+  "chrobry-core",
+  "chrobry-cli",
+]

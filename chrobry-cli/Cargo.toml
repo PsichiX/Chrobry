@@ -1,0 +1,13 @@
+[package]
+name = "chrobry-cli"
+version = "0.1.0"
+authors = ["Patryk 'PsichiX' Budzynski <psichix@gmail.com>"]
+edition = "2018"
+
+[[bin]]
+name = "chrobry"
+path = "./src/main.rs"
+
+[dependencies]
+clap = "2.33"
+chrobry-core = { version = "0.1", path = "../chrobry-core" }

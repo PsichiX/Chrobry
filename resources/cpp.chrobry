@@ -1,0 +1,139 @@
+import './serialization.chrobry'
+
+inject
+```
+#pragma once
+#include <string>
+#include <sstream>
+```
+
+extern 'int' 'float' {
+  impl Display
+  ```
+  std::string Display(%{ $TYPENAME }% self) { return std::to_string(self); }
+  ```
+
+  impl Clone
+  ```
+  %{ $TYPENAME }% Clone(%{ $TYPENAME }% self) { return self; }
+  ```
+}
+
+extern 'std::string' {
+  impl Display
+  ```
+  std::string Display(const std::string& self) { return self; }
+  ```
+
+  impl Clone
+  ```
+  std::string Clone(const std::string& self) { return self; }
+  ```
+}
+
+@Describe
+@Display { name = 'foo' hidden }
+@Clone
+struct Foo {
+  a: 'int'
+  b: 'std::string'
+  c: Status
+  d: 'float'
+}
+
+@Describe { inherit = 'uint8' }
+@Display
+@Clone
+enum Status {
+  Ok
+  Error
+}
+
+impl struct Describe
+```
+struct %{ $TYPENAME }%
+{
+  %{
+    for $name $type in fields
+    ```
+    %{ $type }% %{ $name }%;
+    ```
+  }%
+};
+```
+
+impl enum Describe
+```
+enum class %{ $TYPENAME }% : %{ $inherit }%
+{
+  %{
+    for $name in fields
+    ```
+    %{ $name }%,
+    ```
+  }%
+};
+```
+
+impl struct Display
+```
+std::string Display(const %{ $TYPENAME }% & self)
+{
+  std::stringstream result("%{ $TYPENAME }%\n{\n");
+  %{
+    for $name $type in fields
+    where $type impl Display
+    ```
+    result << "%{ $name }%: " << Display(self.%{ $name }%) << ",\n";
+    ```
+  }%
+  result << "}";
+  return result;
+}
+```
+
+impl enum Display
+```
+std::string Display(%{ $TYPENAME }% self)
+{
+  std::stringstream result("%{ $TYPENAME }%::");
+  switch self
+  {
+    %{
+      for $name in fields
+      ```
+      case %{ $TYPENAME }%::%{ $name }%:
+        result << "%{ $name }%";
+        break;
+      ```
+    }%
+    default:
+      result << "<UNKNOWN>";
+      break;
+  }
+  return result;
+}
+```
+
+impl struct Clone
+where fields impl Clone
+```
+%{ $TYPENAME }% Clone(const %{ $TYPENAME }% & self) {
+  %{ $TYPENAME }% result = {
+    %{
+      for $name $type in fields
+      ```
+      Clone(self.%{ $name }%),
+      ```
+    }%
+  };
+  return result;
+}
+```
+
+impl enum Clone
+```
+%{ $TYPENAME }% Clone(%{ $TYPENAME }% self) {
+  return self;
+}
+```
