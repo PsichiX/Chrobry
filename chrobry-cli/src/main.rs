@@ -1,6 +1,9 @@
 use chrobry_core::generate;
 use clap::{App, Arg};
-use std::fs::{read_to_string, write};
+use std::{
+    collections::HashMap,
+    fs::{read_to_string, write},
+};
 
 fn main() {
     let matches = App::new(env!("CARGO_PKG_NAME"))
@@ -34,6 +37,16 @@ fn main() {
                 .takes_value(true)
                 .required(false),
         )
+        .arg(
+            Arg::with_name("variable")
+                .short("v")
+                .long("var")
+                .value_name("NAME=VALUE")
+                .help("Key-value pair for variable passed into generator")
+                .takes_value(true)
+                .multiple(true)
+                .required(false),
+        )
         .get_matches();
     let entry = matches.value_of("entry").unwrap();
     let output = matches.value_of("output").unwrap();
@@ -42,9 +55,23 @@ fn main() {
         None => 1,
     };
     let separator = "\n".repeat(separator);
+    let variables = if let Some(variables) = matches.values_of("variable") {
+        variables
+            .filter_map(|variable| {
+                let parts = variable.split("=").collect::<Vec<_>>();
+                if parts.len() == 2 {
+                    Some((parts[0].to_owned(), parts[1].to_owned()))
+                } else {
+                    None
+                }
+            })
+            .collect::<HashMap<_, _>>()
+    } else {
+        HashMap::new()
+    };
     let content = read_to_string(entry)
         .unwrap_or_else(|error| panic!("Could not open entry file: {} | {:?}", entry, error));
-    let content = match generate(&content, &separator, |_| Ok("".to_owned())) {
+    let content = match generate(&content, &separator, variables, |_| Ok("".to_owned())) {
         Ok(content) => content,
         Err(error) => panic!("{}", error),
     };

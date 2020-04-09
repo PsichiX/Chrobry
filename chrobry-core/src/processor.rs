@@ -7,14 +7,18 @@ enum Context {
     Enum(String),
 }
 
-pub fn process<F>(ast: &Ast, separator: &str, _on_import: F) -> Result<String, String>
+pub fn process<F>(
+    ast: &Ast,
+    separator: &str,
+    variables: HashMap<String, String>,
+    _on_import: F,
+) -> Result<String, String>
 where
     F: FnMut(&str) -> Result<String, String>,
 {
     let impls = get_impl_targets(ast);
     validate_type_impls(ast, &impls)?;
     let mut output = String::default();
-    let variables = HashMap::new();
     for code in &ast.injects {
         process_code(&Context::None, code, ast, &variables, &mut output)?;
         output.push_str(separator);

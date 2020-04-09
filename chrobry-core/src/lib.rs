@@ -10,11 +10,17 @@ mod tests;
 
 use crate::parser::parse;
 use crate::processor::process;
+use std::collections::HashMap;
 
-pub fn generate<F>(content: &str, separator: &str, on_import: F) -> Result<String, String>
+pub fn generate<F>(
+    content: &str,
+    separator: &str,
+    variables: HashMap<String, String>,
+    on_import: F,
+) -> Result<String, String>
 where
     F: FnMut(&str) -> Result<String, String>,
 {
     let ast = parse(content)?;
-    process(&ast, separator, on_import)
+    process(&ast, separator, variables, on_import)
 }

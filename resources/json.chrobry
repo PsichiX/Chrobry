@@ -1,0 +1,8 @@
+inject
+```
+{
+  "anna": "%{ $ANNA }%",
+  "maria": "%{ $MARIA }%",
+  "jpeg": "%{ $JPEG }%"
+}
+```
