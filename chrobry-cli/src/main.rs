@@ -47,6 +47,16 @@ fn main() {
                 .multiple(true)
                 .required(false),
         )
+        .arg(
+            Arg::with_name("variable-file")
+                .short("f")
+                .long("var")
+                .value_name("NAME=FILE")
+                .help("Key-value pair for variable content got from the file passed into generator")
+                .takes_value(true)
+                .multiple(true)
+                .required(false),
+        )
         .get_matches();
     let entry = matches.value_of("entry").unwrap();
     let output = matches.value_of("output").unwrap();
@@ -55,7 +65,7 @@ fn main() {
         None => 1,
     };
     let separator = "\n".repeat(separator);
-    let variables = if let Some(variables) = matches.values_of("variable") {
+    let mut variables = if let Some(variables) = matches.values_of("variable") {
         variables
             .filter_map(|variable| {
                 let parts = variable.split("=").collect::<Vec<_>>();
@@ -69,6 +79,27 @@ fn main() {
     } else {
         HashMap::new()
     };
+    if let Some(files) = matches.values_of("variable-file") {
+        variables.extend(
+            files
+                .filter_map(|variable| {
+                    let parts = variable.split("=").collect::<Vec<_>>();
+                    if parts.len() == 2 {
+                        let entry = parts[1].to_owned();
+                        let content = read_to_string(&entry).unwrap_or_else(|error| {
+                            panic!(
+                                "Could not open variable content file: {} | {:?}",
+                                entry, error
+                            )
+                        });
+                        Some((parts[0].to_owned(), content))
+                    } else {
+                        None
+                    }
+                })
+                .collect::<HashMap<_, _>>(),
+        )
+    }
     let content = read_to_string(entry)
         .unwrap_or_else(|error| panic!("Could not open entry file: {} | {:?}", entry, error));
     let content = match generate(&content, &separator, variables, |_| Ok("".to_owned())) {
