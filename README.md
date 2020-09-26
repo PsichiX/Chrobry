@@ -16,7 +16,7 @@ or as a Rust crate (library/package) which can be embedded into your project as 
 ## Installation
 - Install or update CLI app:
   ```bash
-  cargo install chrobry-cli --forced
+  cargo install chrobry-cli --force
   ```
 - Add Chrobry to your Rust project dependencies:
   ```toml
