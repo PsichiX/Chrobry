@@ -185,6 +185,7 @@ fn process_replacement(
     variables: &HashMap<String, String>,
 ) -> String {
     let pattern = Regex::new(&replace.pattern).expect("Could not parse replacement pattern");
+    println!("* Replace pattern: `{:?}`", pattern);
     pattern
         .replace_all(input, |captures: &Captures| {
             let mut variables = variables.clone();

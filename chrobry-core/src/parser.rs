@@ -34,7 +34,7 @@ fn parse_inject(pair: Pair<Rule>) -> AstCode {
 
 fn parse_replace(pair: Pair<Rule>) -> AstReplace {
     let mut pairs = pair.into_inner();
-    let pattern = parse_string(pairs.next().unwrap());
+    let pattern = parse_string(pairs.next().unwrap()).replace("\\\\", "\\");
     let template = parse_code(pairs.next().unwrap());
     AstReplace { pattern, template }
 }
