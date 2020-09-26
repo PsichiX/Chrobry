@@ -1,0 +1,8 @@
+inject
+```Lorem Ipsum 123456```
+
+replace '[a-zA-Z]+'
+```[Word: %{$_0}%]```
+
+replace '[0-9]+'
+```[Number: %{$_0}%]```

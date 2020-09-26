@@ -12,6 +12,7 @@ pub fn parse(content: &str) -> Result<Ast, String> {
         match pair.as_rule() {
             Rule::import_elm => ast.imports.push(parse_import(pair)),
             Rule::inject_elm => ast.injects.push(parse_inject(pair)),
+            Rule::replace_elm => ast.replacements.push(parse_replace(pair)),
             Rule::extern_elm => ast.externs.push(parse_extern(pair)),
             Rule::struct_elm => ast.structs.push(parse_struct(pair)),
             Rule::enum_elm => ast.enums.push(parse_enum(pair)),
@@ -29,6 +30,13 @@ fn parse_import(pair: Pair<Rule>) -> String {
 
 fn parse_inject(pair: Pair<Rule>) -> AstCode {
     parse_code(pair.into_inner().next().unwrap())
+}
+
+fn parse_replace(pair: Pair<Rule>) -> AstReplace {
+    let mut pairs = pair.into_inner();
+    let pattern = parse_string(pairs.next().unwrap());
+    let template = parse_code(pairs.next().unwrap());
+    AstReplace { pattern, template }
 }
 
 fn parse_extern(pair: Pair<Rule>) -> AstExtern {

@@ -1,9 +1,10 @@
 program = { SOI ~ element* ~ EOI }
-element = _{ import_elm | inject_elm | extern_elm | struct_elm | enum_elm | impl_elm }
+element = _{ import_elm | inject_elm | replace_elm | extern_elm | struct_elm | enum_elm | impl_elm }
 identifier = ${ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
 variable = { "$" ~ identifier }
 import_elm = { "import" ~ string }
 inject_elm = { "inject" ~ code }
+replace_elm = { "replace" ~ string ~ code }
 extern_elm = { "extern" ~ extern_elm_types ~ "{" ~ extern_elm_impls ~ "}" }
 extern_elm_types = { string+ }
 extern_elm_impls = { extern_elm_impl* }

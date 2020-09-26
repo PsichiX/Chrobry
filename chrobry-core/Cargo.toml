@@ -13,3 +13,4 @@ readme = "../README.md"
 [dependencies]
 pest = "2.1"
 pest_derive = "2.1"
+regex = "1.3"

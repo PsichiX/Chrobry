@@ -50,7 +50,7 @@ fn main() {
         .arg(
             Arg::with_name("variable-file")
                 .short("f")
-                .long("var")
+                .long("file")
                 .value_name("NAME=FILE")
                 .help("Key-value pair for variable content got from the file passed into generator")
                 .takes_value(true)

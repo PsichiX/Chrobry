@@ -8,6 +8,7 @@ pub struct AstParser;
 pub struct Ast {
     pub imports: Vec<String>,
     pub injects: Vec<AstCode>,
+    pub replacements: Vec<AstReplace>,
     pub externs: Vec<AstExtern>,
     pub structs: Vec<AstStruct>,
     pub enums: Vec<AstEnum>,
@@ -19,6 +20,12 @@ pub struct Ast {
 //
 //     }
 // }
+
+#[derive(Debug, Default, Clone)]
+pub struct AstReplace {
+    pub pattern: String,
+    pub template: AstCode,
+}
 
 #[derive(Debug, Default, Clone)]
 pub struct AstExtern {

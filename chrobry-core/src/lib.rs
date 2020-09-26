@@ -5,9 +5,6 @@ pub mod ast;
 pub mod parser;
 pub mod processor;
 
-#[cfg(test)]
-mod tests;
-
 use crate::parser::parse;
 use crate::processor::process;
 use std::collections::HashMap;

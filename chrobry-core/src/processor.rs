@@ -1,4 +1,5 @@
 use crate::ast::*;
+use regex::{Captures, Regex};
 use std::collections::HashMap;
 
 enum Context {
@@ -31,6 +32,9 @@ where
     }
     for struct_ in &ast.structs {
         process_struct(struct_, ast, separator, &mut output)?;
+    }
+    for replace in &ast.replacements {
+        output = process_replacement(replace, &output, ast, &variables);
     }
     Ok(output)
 }
@@ -172,6 +176,36 @@ fn get_container_iterables(
         }
         AstIn::None => Err("There is no container specified to iterate over".to_owned()),
     }
+}
+
+fn process_replacement(
+    replace: &AstReplace,
+    input: &str,
+    ast: &Ast,
+    variables: &HashMap<String, String>,
+) -> String {
+    let pattern = Regex::new(&replace.pattern).expect("Could not parse replacement pattern");
+    pattern
+        .replace_all(input, |captures: &Captures| {
+            let mut variables = variables.clone();
+            for i in 0..captures.len() {
+                if let Some(capture) = captures.get(i) {
+                    variables.insert(format!("_{}", i), capture.as_str().to_owned());
+                }
+            }
+            let mut output = String::new();
+            process_code(
+                &Context::None,
+                &replace.template,
+                ast,
+                &variables,
+                &mut output,
+            )
+            .expect("Could not process replacement template code");
+            output
+        })
+        .to_owned()
+        .into()
 }
 
 fn process_extern(
